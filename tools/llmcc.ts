@@ -48,15 +48,11 @@ program
   .action(async (file: string, opts: CompileOptions) => {
     try {
       console.log(`🔧 Compiling ${opts.fn} from ${file}...`);
-      
-      // Check API key status
-      const hasApiKey = process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.startsWith('sk-fake');
-      if (hasApiKey) {
-        console.log(`🤖 Using OpenAI API with model: ${opts.model}`);
-      } else {
-        console.log(`🎭 No API key found - using demo mode with fake model`);
-        console.log(`💡 Set OPENAI_API_KEY environment variable to use real OpenAI models`);
+      if (!process.env.OPENAI_API_KEY) {
+        console.error('❌ OPENAI_API_KEY is required to run compilation');
+        process.exit(1);
       }
+      console.log(`🤖 Using OpenAI API with model: ${opts.model}`);
       
       const src = fs.readFileSync(file, "utf8");
       const contract = parseContractBlock(src, opts.fn);
