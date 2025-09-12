@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "API Request",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "userName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "userEmail": {
+      "type": "string",
+      "format": "email",
+      "maxLength": 255
+    }
+  },
+  "required": ["userId"],
+  "additionalProperties": false
+}

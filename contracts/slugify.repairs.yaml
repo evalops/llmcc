@@ -1,0 +1,29 @@
+repairs:
+  - code: SLUG_TOO_LONG
+    action: "truncate to 80 characters and remove trailing hyphens"
+    strategy: "truncate"
+    max_length: 80
+  - code: SLUG_INVALID_CHAR
+    action: "replace invalid characters with '-' then collapse repeated hyphens"
+    strategy: "sanitize"
+    replacement: "-"
+    pattern: "[^a-z0-9-]"
+  - code: SLUG_EMPTY
+    action: "generate default slug from timestamp"
+    strategy: "default"
+    fallback: "untitled"
+  - code: SLUG_STARTS_WITH_HYPHEN
+    action: "remove leading hyphens"
+    strategy: "trim"
+    position: "start"
+  - code: SLUG_ENDS_WITH_HYPHEN
+    action: "remove trailing hyphens"
+    strategy: "trim"
+    position: "end"
+
+error_codes:
+  SLUG_TOO_LONG: "Generated slug exceeds maximum length of 80 characters"
+  SLUG_INVALID_CHAR: "Slug contains characters outside allowed set [a-z0-9-]"
+  SLUG_EMPTY: "Input produced empty slug after processing"
+  SLUG_STARTS_WITH_HYPHEN: "Slug cannot start with a hyphen"
+  SLUG_ENDS_WITH_HYPHEN: "Slug cannot end with a hyphen"

@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Slug",
+  "type": "string",
+  "maxLength": 80,
+  "pattern": "^[a-z0-9-]+$",
+  "description": "A web-safe slug containing only lowercase letters, numbers, and hyphens"
+}

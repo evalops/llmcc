@@ -1,0 +1,14 @@
+{"ok": true, "in": "Hello World", "out": "hello-world"}
+{"ok": true, "in": "The Quick Brown Fox", "out": "the-quick-brown-fox"}
+{"ok": true, "in": "Hello—World!", "out": "hello-world"}
+{"ok": true, "in": "  $$$ Start  ", "out": "start"}
+{"ok": true, "in": "JavaScript & TypeScript", "out": "javascript-typescript"}
+{"ok": true, "in": "API v2.0 Release", "out": "api-v2-0-release"}
+{"ok": true, "in": "café français", "out": "cafe-francais"}
+{"ok": true, "in": "Multiple   Spaces", "out": "multiple-spaces"}
+{"ok": true, "in": "trailing-hyphens---", "out": "trailing-hyphens"}
+{"ok": true, "in": "---leading-hyphens", "out": "leading-hyphens"}
+{"ok": false, "in": "", "reason": "empty input"}
+{"ok": false, "in": "   ", "reason": "whitespace only"}
+{"ok": false, "in": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "reason": "too_long"}
+{"ok": false, "in": "!@#$%^&*()", "reason": "no_valid_chars"}
