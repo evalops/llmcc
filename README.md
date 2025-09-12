@@ -22,14 +22,11 @@ npm install
 cp .env.example .env
 # Edit .env and add your OPENAI_API_KEY
 
-# Demo mode (works without API key)
-npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
-
-# Real OpenAI mode (requires API key)
+# Compile with OpenAI API
 OPENAI_API_KEY=sk-your-key npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
 
 # Use different models
-npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --model gpt-4o
+OPENAI_API_KEY=sk-your-key npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --model gpt-4o
 
 # Test against examples
 npx ts-node tools/llmcc.ts test src/example.ts
@@ -134,23 +131,7 @@ Every compilation produces traceable metadata:
 
 ## Examples
 
-### Basic Compilation (Demo Mode)
-```bash
-$ npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
-🔧 Compiling slugifyTitle from src/example.ts...
-🎭 No API key found - using demo mode with fake model
-💡 Set OPENAI_API_KEY environment variable to use real OpenAI models
-🔍 Using output schema: contracts/slugify.output.schema.json
-✅ Compilation completed in 12ms
-🔧 Model: fake-model-v1 (temp: 0.2)
-🛠️  Repairs attempted: 0
-📊 Schema valid: ✅
-📊 Invariants valid: ✅
-🔑 Spec hash: c66a00e5
-📝 Generated output: "hello-world"
-```
-
-### OpenAI API Compilation
+### Compilation
 ```bash
 $ OPENAI_API_KEY=sk-... npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
 🔧 Compiling slugifyTitle from src/example.ts...
@@ -237,15 +218,6 @@ const completion = await openai.chat.completions.create({
 - **gpt-4o** - More powerful, higher cost
 - **gpt-4-turbo** - Legacy model with good performance
 - **gpt-3.5-turbo** - Budget option (check structured output support)
-
-### Fallback Mode
-
-When no API key is provided, LLMCC automatically falls back to an intelligent fake model that demonstrates all system capabilities:
-
-```bash
-🎭 No API key found - using demo mode with fake model
-💡 Set OPENAI_API_KEY environment variable to use real OpenAI models
-```
 
 ### Cost Optimization
 

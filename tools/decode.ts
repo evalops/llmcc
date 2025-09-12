@@ -1,4 +1,4 @@
-import { makeValidator, loadRepairConfig, validateInvariants, ContractMetadata, loadSchema } from "./validators";
+import { makeValidator, validateInvariants, ContractMetadata, loadSchema } from "./validators";
 import crypto from "crypto";
 import OpenAI from "openai";
 
@@ -33,9 +33,6 @@ export async function constrainedDecode(prompt: string, opts: DecodeOpts): Promi
   const maxRepairs = opts.maxRepairs || 3;
   let repairsAttempted = 0;
   
-  // Check if we have a real API key for model info
-  const hasRealApiKey = process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.startsWith('sk-fake');
-  
   // Generate spec hash if metadata available
   let specHash: string | undefined;
   if (opts.contractMetadata) {
@@ -52,8 +49,7 @@ export async function constrainedDecode(prompt: string, opts: DecodeOpts): Promi
   
   for (let attempt = 0; attempt <= maxRepairs; attempt++) {
     try {
-      // In production: call your LM with grammar/JSON mode + tool-calling
-      // For now: use a sophisticated fake model that demonstrates the concept
+      // Call the language model with grammar/JSON mode + tool-calling
       const candidate = await callModel(prompt, opts, attempt > 0);
       
       // Schema validation
@@ -76,9 +72,9 @@ export async function constrainedDecode(prompt: string, opts: DecodeOpts): Promi
         valid: allValid,
         repairs_attempted: repairsAttempted,
         model_info: {
-          model: opts.model || (hasRealApiKey ? "gpt-4o-mini" : "fake-model-v1"),
+          model: opts.model || "gpt-4o-mini",
           temperature: opts.temperature || 0.2,
-          decode_mode: hasRealApiKey ? "json_schema+strict" : "json+grammar"
+          decode_mode: "json_schema+strict"
         },
         verification: {
           schema_pass: schemaValid,
@@ -146,19 +142,13 @@ export async function constrainedDecode(prompt: string, opts: DecodeOpts): Promi
   throw new Error("Decode failed");
 }
 
-// Initialize OpenAI client (will use OPENAI_API_KEY environment variable)
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'sk-fake-key-for-testing'
-});
-
 async function callModel(prompt: string, opts: DecodeOpts, isRepairAttempt: boolean): Promise<string> {
-  // Check if we have a real API key
-  const hasRealApiKey = process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.startsWith('sk-fake');
-  
-  if (!hasRealApiKey) {
-    console.warn('⚠️  No OPENAI_API_KEY found, using fake model for demo');
-    return callFakeModel(prompt, opts, isRepairAttempt);
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is required to call the model');
   }
+
+  const openai = new OpenAI({ apiKey });
 
   try {
     // Load the output schema to use for structured output
@@ -206,67 +196,8 @@ async function callModel(prompt: string, opts: DecodeOpts, isRepairAttempt: bool
     return parsed.result;
 
   } catch (error) {
-    console.warn(`⚠️  OpenAI API call failed: ${error}, falling back to fake model`);
-    return callFakeModel(prompt, opts, isRepairAttempt);
+    throw new Error(`OpenAI API call failed: ${error}`);
   }
-}
-
-async function callFakeModel(prompt: string, opts: DecodeOpts, isRepairAttempt: boolean): Promise<string> {
-  // Sophisticated fake model that demonstrates the concept
-  // This preserves the original demo functionality when no API key is available
-  
-  if (prompt.includes("SYNTHESIZE:slugifyTitle")) {
-    // Extract potential input from prompt context
-    const inputMatch = prompt.match(/input:\s*['"](.*?)['"]/) || 
-                      prompt.match(/slugifyTitle\(['"]([^'"]*)['"]\)/);
-    
-    if (inputMatch) {
-      const input = inputMatch[1];
-      return simulateSlugify(input, isRepairAttempt);
-    }
-  }
-  
-  // Default behavior for unknown functions
-  const lines = prompt.split('\n');
-  const potentialInput = lines.find(line => line.includes('Hello') || line.includes('World'));
-  if (potentialInput) {
-    return simulateSlugify(potentialInput, isRepairAttempt);
-  }
-  
-  return simulateSlugify("example title", isRepairAttempt);
-}
-
-function simulateSlugify(input: string, isRepairAttempt: boolean): string {
-  // Simulate different model behaviors, including errors that need repair
-  if (!isRepairAttempt) {
-    // Sometimes produce outputs that need repair to demonstrate the system
-    if (Math.random() < 0.3) {
-      // Simulate common model errors
-      const errorTypes = [
-        () => input.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '---', // trailing hyphens
-        () => '---' + input.toLowerCase().replace(/[^a-z0-9]+/g, '-'), // leading hyphens
-        () => input.toLowerCase().replace(/[^a-z0-9]+/g, '-').repeat(50), // too long
-        () => input.toLowerCase().replace(/\s+/g, '_'), // wrong separator
-      ];
-      const errorFn = errorTypes[Math.floor(Math.random() * errorTypes.length)];
-      return errorFn();
-    }
-  }
-  
-  // Correct implementation (most of the time)
-  const ascii = input
-    .normalize("NFKD")
-    .replace(/[^\x00-\x7F]/g, "-")
-    .toLowerCase();
-  
-  let slug = ascii.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  slug = slug.replace(/-+/g, "-");
-  
-  if (slug.length > 80) {
-    slug = slug.slice(0, 80).replace(/-+$/g, "");
-  }
-  
-  return slug || "untitled";
 }
 
 async function attemptRepair(

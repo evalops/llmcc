@@ -1,42 +1,23 @@
-# LLMCC Demo: Real OpenAI Integration
+# LLMCC Demo: OpenAI Integration
 
-This demonstrates the complete LLMCC system with both demo mode and real OpenAI API integration.
+This demonstrates the complete LLMCC system using the OpenAI API.
 
-## Demo Mode (No API Key Required)
-
-The system works out of the box with an intelligent fake model:
-
-```bash
-# Basic compilation
-$ npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
-🔧 Compiling slugifyTitle from src/example.ts...
-🎭 No API key found - using demo mode with fake model
-💡 Set OPENAI_API_KEY environment variable to use real OpenAI models
-✅ Compilation completed in 12ms
-🔧 Model: fake-model-v1 (temp: 0.2)
-📊 Schema valid: ✅
-📊 Invariants valid: ✅
-📝 Generated output: "hello-world"
-```
-
-## Real OpenAI Integration
-
-### Setup
+## Setup
 
 1. **Get OpenAI API Key** from https://platform.openai.com/
 2. **Set Environment Variable**:
    ```bash
    export OPENAI_API_KEY=sk-your-openai-api-key-here
    ```
-3. **Run with Real Model**:
+3. **Run compilation**:
    ```bash
    npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
    ```
 
-### Expected Output with Real API
+### Expected Output
 
 ```bash
-$ OPENAI_API_KEY=sk-... npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
+$ npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
 🔧 Compiling slugifyTitle from src/example.ts...
 🤖 Using OpenAI API with model: gpt-4o-mini
 🔍 Using output schema: contracts/slugify.output.schema.json
@@ -61,12 +42,7 @@ $ OPENAI_API_KEY=sk-... npx ts-node tools/llmcc.ts compile src/example.ts --fn s
 - JSON schemas for input/output validation
 - Invariant checking with JavaScript evaluation
 
-### 3. Intelligent Fallback
-- Works without API key using sophisticated fake model
-- Seamless transition between demo and production modes
-- Cost-effective development workflow
-
-### 4. Advanced Model Support
+### 3. Advanced Model Support
 ```bash
 # Use different OpenAI models
 npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --model gpt-4o
@@ -76,12 +52,12 @@ npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --
 npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --temperature 0.1 --max-repairs 5
 ```
 
-### 5. Comprehensive Testing
+### 4. Comprehensive Testing
 ```bash
 # Property tests
 npm test
 
-# Example-based testing  
+# Example-based testing
 npx ts-node tools/llmcc.ts test src/example.ts
 
 # Generate specification hashes
@@ -99,13 +75,6 @@ npx ts-node tools/llmcc.ts spec-hash src/example.ts --fn slugifyTitle
 │ Examples        │    │ Repair System   │    │ Outputs         │
 │ Property Tests  │    │ Metadata Logger │    │ JSON Schema     │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │
-                              ▼
-                       ┌─────────────────┐
-                       │  Fake Model     │
-                       │  (Demo Mode)    │
-                       │  No API Key     │
-                       └─────────────────┘
 ```
 
 ## Cost Optimization
