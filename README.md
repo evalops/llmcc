@@ -22,11 +22,14 @@ npm install
 cp .env.example .env
 # Edit .env and add your OPENAI_API_KEY
 
-# Compile with OpenAI API
+# Compile with original implementation
 OPENAI_API_KEY=sk-your-key npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1
 
-# Use different models
-OPENAI_API_KEY=sk-your-key npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --model gpt-4o
+# Compile with ax framework (recommended)
+OPENAI_API_KEY=sk-your-key npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --use-ax
+
+# Use different models with ax (supports OpenAI, Anthropic, Google)
+OPENAI_API_KEY=sk-your-key npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --use-ax --model gpt-4o
 
 # Test against examples
 npx ts-node tools/llmcc.ts test src/example.ts
@@ -40,6 +43,29 @@ npm test
 # Run full demo
 make demo
 ```
+
+## Ax Framework Integration ⚡
+
+LLMCC now supports the [ax framework](https://github.com/ax-llm/ax) for enhanced LLM operations:
+
+### Benefits
+- **Multi-provider support**: Easy switching between OpenAI, Anthropic, Google
+- **Declarative programming**: Simplified LLM interaction patterns
+- **Enhanced reliability**: Better error handling and fallbacks  
+- **Future-ready**: Built-in support for streaming, optimization, agents
+
+### Usage
+```bash
+# Use ax framework (add --use-ax flag)
+npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --use-ax
+
+# Works with all existing options
+npx ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1 --use-ax --model gpt-4o --temperature 0.1
+```
+
+Both implementations produce identical results, but ax provides a more robust and extensible foundation.
+
+📚 **See [docs/ax-integration.md](docs/ax-integration.md) for detailed comparison and examples**
 
 ## Contract Annotations
 
@@ -248,6 +274,9 @@ llmcc compile src/example.ts --fn slugifyTitle --spec v1 --model gpt-4o-mini
 # Adjust temperature and repairs
 llmcc compile src/example.ts --fn slugifyTitle --spec v1 --temperature 0.1 --max-repairs 5
 
+# Use ax framework
+llmcc compile src/example.ts --fn slugifyTitle --spec v1 --use-ax
+
 # Verbose output
 llmcc compile src/example.ts --fn slugifyTitle --spec v1 --verbose
 
@@ -283,6 +312,11 @@ llmcc spec-hash src/example.ts --fn slugifyTitle
 - **Traceable** - Full metadata logging for debugging
 - **Scalable** - Contract-first development for teams
 
+## Documentation
+
+- 📚 **[Demo Guide](docs/DEMO.md)** - Complete walkthrough with examples
+- ⚡ **[Ax Integration](docs/ax-integration.md)** - Enhanced LLM operations guide
+
 ## Future Work
 
 - AST-based contract parsing (replace regex)
@@ -290,6 +324,7 @@ llmcc spec-hash src/example.ts --fn slugifyTitle
 - Multi-turn repair conversations
 - Formal verification integration
 - Cross-language contract support
+- Enhanced ax features (streaming, agents, RAG)
 
 ## License
 
