@@ -3,6 +3,7 @@
 import { config } from "dotenv";
 import { program } from "commander";
 import { constrainedDecode } from "./decode";
+import { axConstrainedDecode } from "./ax-decoder";
 import { parseContractBlock, loadExamples } from "./validators";
 import path from "node:path";
 import fs from "node:fs";
@@ -17,6 +18,7 @@ interface CompileOptions {
   model?: string;
   maxRepairs?: number;
   verbose?: boolean;
+  useAx?: boolean;
 }
 
 interface TestOptions {
@@ -45,15 +47,24 @@ program
   .option("--model <model>", "model to use", "gpt-4o-mini")
   .option("--max-repairs <num>", "maximum repair attempts", "3")
   .option("--verbose", "verbose output")
+  .option("--use-ax", "use ax framework instead of custom decoder")
   .action(async (file: string, opts: CompileOptions) => {
     try {
       console.log(`🔧 Compiling ${opts.fn} from ${file}...`);
-      if (!process.env.OPENAI_API_KEY) {
-        console.error('❌ OPENAI_API_KEY is required to run compilation');
-        process.exit(1);
-      }
-      console.log(`🤖 Using OpenAI API with model: ${opts.model}`);
       
+      // Check API key status and decoder choice
+      const hasApiKey = process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.startsWith('sk-fake');
+      if (opts.useAx) {
+        console.log(`⚡ Using ax framework with model: ${opts.model}`);
+        if (!hasApiKey) {
+          console.log(`💡 Set OPENAI_API_KEY environment variable to use real models with ax`);
+        }
+      } else if (hasApiKey) {
+        console.log(`🤖 Using OpenAI API with model: ${opts.model}`);
+      } else {
+        console.log(`🎭 No API key found - using demo mode with fake model`);
+        console.log(`💡 Set OPENAI_API_KEY environment variable to use real OpenAI models`);
+      }
       const src = fs.readFileSync(file, "utf8");
       const contract = parseContractBlock(src, opts.fn);
       
@@ -76,18 +87,31 @@ program
       
       console.log(`🔍 Using output schema: ${outputSchemaPath}`);
       
-      // Perform constrained decoding
-      const result = await constrainedDecode(prompt, {
-        outputSchemaPath,
-        maxRepairs: parseInt(String(opts.maxRepairs || "3")),
-        temperature: parseFloat(String(opts.temperature || "0.2")),
-        model: opts.model,
-        contractMetadata: contract
-      });
+      // Perform constrained decoding with chosen decoder
+      let result;
+      if (opts.useAx) {
+        result = await axConstrainedDecode(prompt, {
+          contractMetadata: contract,
+          maxRepairs: parseInt(String(opts.maxRepairs || "3")),
+          temperature: parseFloat(String(opts.temperature || "0.2")),
+          model: opts.model
+        });
+      } else {
+        result = await constrainedDecode(prompt, {
+          outputSchemaPath,
+          maxRepairs: parseInt(String(opts.maxRepairs || "3")),
+          temperature: parseFloat(String(opts.temperature || "0.2")),
+          model: opts.model,
+          contractMetadata: contract
+        });
+      }
       
       // Output results
       console.log(`✅ Compilation completed in ${result.latency_ms}ms`);
       console.log(`🔧 Model: ${result.model_info.model} (temp: ${result.model_info.temperature})`);
+      if (opts.useAx && 'provider' in result.model_info) {
+        console.log(`🌐 Provider: ${(result.model_info as any).provider} (${result.model_info.decode_mode})`);
+      }
       console.log(`🛠️  Repairs attempted: ${result.repairs_attempted}`);
       console.log(`📊 Schema valid: ${result.verification.schema_pass ? '✅' : '❌'}`);
       console.log(`📊 Invariants valid: ${result.verification.invariants_pass ? '✅' : '❌'}`);
