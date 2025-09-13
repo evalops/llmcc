@@ -33,8 +33,12 @@ coverage/
 logs
 *.log
 
-# Runtime data
+# LLMCC runtime data and metadata
 .llmcc/
+metadata.jsonl
+
+# Alternative package manager files (keep package-lock.json)
+yarn.lock
 
 # OS generated files
 .DS_Store

@@ -1,13 +1,17 @@
 {
   "name": "llmcc",
   "version": "1.0.0",
-  "description": "LLM-native compiler toolchain",
-  "main": "tools/llmcc.ts",
+  "description": "LLM-native compiler toolchain with ax framework integration for declarative AI programming",
+  "main": "dist/tools/llmcc.js",
   "scripts": {
     "test": "vitest run",
-    "compile": "ts-node tools/llmcc.ts compile src/example.ts --fn slugifyTitle --spec v1",
+    "test:watch": "vitest",
     "build": "tsc",
-    "dev": "ts-node"
+    "dev": "ts-node tools/llmcc.ts",
+    "demo": "make demo",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@ax-llm/ax": "^14.0.23",
@@ -26,19 +30,45 @@
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^20.8.0",
     "typescript": "^5.2.2",
-    "vitest": "^0.34.6"
+    "vitest": "^3.2.4"
   },
   "bin": {
-    "llmcc": "./tools/llmcc.ts"
+    "llmcc": "./dist/tools/llmcc.js"
   },
   "keywords": [
     "llm",
     "compiler",
     "ai",
     "code-generation",
-    "schema"
+    "schema",
+    "ax",
+    "typescript",
+    "openai",
+    "anthropic",
+    "declarative"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evalops/llmcc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/evalops/llmcc/issues"
+  },
+  "homepage": "https://github.com/evalops/llmcc#readme",
   "author": "Developer",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "tools/**/*",
+    "contracts/**/*",
+    "examples/**/*",
+    "docs/**/*",
+    "README.md",
+    "package.json"
+  ],
   "packageManager": "pnpm@9.0.0+sha512.b4106707c7225b1748b61595953ccbebff97b54ad05d002aa3635f633b9c53cd666f7ce9b8bc44704f1fa048b9a49b55371ab2d9e9d667d1efe2ef1514bcd513"
 }
